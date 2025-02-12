@@ -43,14 +43,14 @@ void tokenize(char *input, char **tokens) {
     tokens[index] = NULL;  // Null-terminate the array
 }
 
-
 void display_questions() {
-    printf("\nQuestions:\n");
+    printf("\nAvailable Questions:\n");
     for (int i = 0; i < NUM_QUESTIONS; i++) {
-        printf("[%s] $%d: %s\n", questions[i].category, questions[i].value, questions[i].question);
+        if (!questions[i].answered) {
+            printf("[%s] $%d: %s\n", questions[i].category, questions[i].value, questions[i].question);
+        }
     }
 }
-
 
 // Displays the game results for each player, their name and final score, ranked from first to last place
 void show_results(player *players, int num_players) {
@@ -99,8 +99,10 @@ int main(int argc, char *argv[])
     display_questions();
 
     // Start the game loop
+    int current_player = 0;  // Track the current player
     while (1) {
-        printf("Enter what you would like to do (or 'exit' to quit): ");
+        printf("\nCurrent Player: %s\n", players[current_player].name);
+        printf("Enter the category and value (e.g., 'Science 200') or 'exit' to quit: ");
         if (fgets(buffer, BUFFER_LEN, stdin) == NULL) {
             break;
         }
@@ -113,7 +115,7 @@ int main(int argc, char *argv[])
             break;
         }
 
-        // Process player answers
+        // Process player input
         char *tokens[10] = {NULL};  // Max 10 tokens for safety
         tokenize(buffer, tokens);
 
@@ -123,10 +125,19 @@ int main(int argc, char *argv[])
             int value = atoi(tokens[1]);
 
             // Find the corresponding question for this category and value
+            bool question_found = false;
             for (int i = 0; i < NUM_QUESTIONS; i++) {
                 if (strcmp(questions[i].category, category) == 0 && questions[i].value == value) {
+                    question_found = true;
+
+                    // Check if the question has already been answered
+                    if (questions[i].answered) {
+                        printf("This question has already been answered. Please choose another.\n");
+                        break;
+                    }
+
                     // Display the question and prompt the player for the answer
-                    printf("Question: %s\n", questions[i].question);
+                    printf("\nQuestion: %s\n", questions[i].question);
                     printf("Enter your answer: ");
                     fgets(buffer, BUFFER_LEN, stdin);
                     buffer[strcspn(buffer, "\n")] = '\0';  // Remove newline character
@@ -136,18 +147,33 @@ int main(int argc, char *argv[])
                     tokenize(buffer, tokens);  // Extract tokens
 
                     if (tokens[0] && strcmp(tokens[0], questions[i].answer) == 0) {
-                        printf("Correct!\n");
-                        players[0].score += value;  // Adjust score for the correct player (Player 0 here)
+                        printf("Correct! You earned $%d.\n", value);
+                        players[current_player].score += value;  // Adjust score for the current player
                     } else {
                         printf("Incorrect. The correct answer was: %s\n", questions[i].answer);
                     }
-                    break;  // Break after processing the answer for this question
+
+                    // Mark the question as answered
+                    questions[i].answered = true;
+
+                    // Display updated scores
+                    printf("\nUpdated Scores:\n");
+                    for (int j = 0; j < NUM_PLAYERS; j++) {
+                        printf("%s: $%d\n", players[j].name, players[j].score);
+                    }
+
+                    // Move to the next player
+                    current_player = (current_player + 1) % NUM_PLAYERS;
+                    break;
                 }
             }
-        }
 
-        // Placeholder to process inputs further as needed
-        printf("Processing input: %s\n", buffer);  // Placeholder action
+            if (!question_found) {
+                printf("Invalid category or value. Please try again.\n");
+            }
+        } else {
+            printf("Invalid input. Please enter a category and value (e.g., 'Science 200').\n");
+        }
     }
 
     // Display final game results
