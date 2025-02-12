@@ -11,6 +11,16 @@
 #include "questions.h"
 
 // Initializes the array of questions for the game
+//Throwing stupid errors so I put this here
+char categories[NUM_CATEGORIES][MAX_LEN] = {
+    "programming", 
+    "algorithms", 
+    "databases"
+};
+
+question questions[NUM_QUESTIONS];  // Define questions here
+
+
 void initialize_game(void)
 {
     strcpy(questions[0].category, "programming");

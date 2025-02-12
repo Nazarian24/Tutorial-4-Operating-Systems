@@ -31,6 +31,15 @@ void tokenize(char *input, char **tokens) {
     tokens[index] = NULL;  // Null-terminate the array
 };
 
+
+void display_questions() {
+    printf("\nQuestions:\n");
+    for (int i = 0; i < NUM_QUESTIONS; i++) {
+        printf("[%s] $%d: %s\n", questions[i].category, questions[i].value, questions[i].question);
+    }
+}
+
+
 // Displays the game results for each player, their name and final score, ranked from first to last place
 void show_results(player *players, int num_players) {
     // Simple bubble sort to rank players by score
@@ -74,9 +83,12 @@ int main(int argc, char *argv[])
         players[i].score = 0;  // Initialize score
     }
 
+    // Display available questions before starting the game loop
+    display_questions();
+
     // Start the game loop
     while (1) {
-        printf("Enter a command (or 'exit' to quit): ");
+        printf("Enter what you would like to do (or 'exit' to quit): ");
         if (fgets(buffer, BUFFER_LEN, stdin) == NULL) {
             break;
         }
@@ -93,8 +105,33 @@ int main(int argc, char *argv[])
         char *tokens[10] = {NULL};  // Max 10 tokens for safety
         tokenize(buffer, tokens);
 
-        // Further game logic should go here, such as checking answers
+        // Assuming the player selects a category and value (like "Science 200")
+        if (tokens[0] && tokens[1]) {
+            char *category = tokens[0];
+            int value = atoi(tokens[1]);
 
+            // Find the corresponding question for this category and value
+            for (int i = 0; i < NUM_QUESTIONS; i++) {
+                if (strcmp(questions[i].category, category) == 0 && questions[i].value == value) {
+                    // Display the question and prompt the player for the answer
+                    printf("Question: %s\n", questions[i].question);
+                    printf("Enter your answer: ");
+                    fgets(buffer, BUFFER_LEN, stdin);
+                    buffer[strcspn(buffer, "\n")] = '\0';  // Remove newline character
+
+                    // Check the player's answer
+                    if (strcmp(buffer, questions[i].answer) == 0) {
+                        printf("Correct!\n");
+                        players[0].score += value;  // Adjust score for the correct player (Player 0 here)
+                    } else {
+                        printf("Incorrect. The correct answer was: %s\n", questions[i].answer);
+                    }
+                    break;  // Break after processing the answer for this question
+                }
+            }
+        }
+
+        // Placeholder to process inputs further as needed
         printf("Processing input: %s\n", buffer);  // Placeholder action
     }
 

@@ -16,12 +16,8 @@
 // questions.c, this can be accessed in questions.c
 #define NUM_QUESTIONS 12
 
-// List of 3 categories as array of strings
-static char categories[NUM_CATEGORIES][MAX_LEN] = {
-    "programming", 
-    "algorithms", 
-    "databases"
-};
+extern char categories[NUM_CATEGORIES][MAX_LEN];  // Declare categories as extern
+
 
 // Questions struct for each question
 typedef struct {
@@ -34,7 +30,7 @@ typedef struct {
 
 // An array of 12 questions (4 for each category), initialized in initialize_game
 // this may need to be a pointer if you want it set dynamically
-question questions[NUM_QUESTIONS];
+extern question questions[NUM_QUESTIONS];  // Declare questions as extern
 
 // Initializes the array of questions for the game
 extern void initialize_game(void);
