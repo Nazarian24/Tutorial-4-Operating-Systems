@@ -72,6 +72,16 @@ void show_results(player *players, int num_players) {
     }
 }
 
+// Check if all questions have been answered
+bool all_questions_answered() {
+    for (int i = 0; i < NUM_QUESTIONS; i++) {
+        if (!questions[i].answered) {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main(int argc, char *argv[])
 {
     // Allocate memory dynamically for players using malloc
@@ -101,6 +111,12 @@ int main(int argc, char *argv[])
     // Start the game loop
     int current_player = 0;  // Track the current player
     while (1) {
+        // Check if all questions have been answered
+        if (all_questions_answered()) {
+            printf("\nAll questions have been answered!\n");
+            break;
+        }
+
         printf("\nCurrent Player: %s\n", players[current_player].name);
         printf("Enter the category and value (e.g., 'Science 200') or 'exit' to quit: ");
         if (fgets(buffer, BUFFER_LEN, stdin) == NULL) {
@@ -149,12 +165,11 @@ int main(int argc, char *argv[])
                     if (tokens[0] && strcmp(tokens[0], questions[i].answer) == 0) {
                         printf("Correct! You earned $%d.\n", value);
                         players[current_player].score += value;  // Adjust score for the current player
+                        questions[i].answered = true;  // Mark the question as answered
                     } else {
-                        printf("Incorrect. The correct answer was: %s\n", questions[i].answer);
+                        printf("Incorrect. Try again next turn!\n");
+                        // Do not mark the question as answered, allowing other players to attempt it
                     }
-
-                    // Mark the question as answered
-                    questions[i].answered = true;
 
                     // Display updated scores
                     printf("\nUpdated Scores:\n");
