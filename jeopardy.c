@@ -21,15 +21,27 @@
 
 // Processes the answer from the user containing what is or who is and tokenizes it to retrieve the answer.
 void tokenize(char *input, char **tokens) {
-    char *token = strtok(input, " ");  // Tokenize based on spaces
-    int index = 0;
+    // Trim leading spaces
+    while (*input == ' ') {
+        input++;
+    }
 
+    // Check if input starts with "What is" or "Who is" and remove it
+    if (strncmp(input, "What is ", 8) == 0) {
+        input += 8;
+    } else if (strncmp(input, "Who is ", 7) == 0) {
+        input += 7;
+    }
+
+    // Tokenize the remaining string
+    int index = 0;
+    char *token = strtok(input, " ");
     while (token != NULL) {
         tokens[index++] = token;
         token = strtok(NULL, " ");
     }
     tokens[index] = NULL;  // Null-terminate the array
-};
+}
 
 
 void display_questions() {
@@ -120,7 +132,10 @@ int main(int argc, char *argv[])
                     buffer[strcspn(buffer, "\n")] = '\0';  // Remove newline character
 
                     // Check the player's answer
-                    if (strcmp(buffer, questions[i].answer) == 0) {
+                    char *tokens[10] = {NULL};
+                    tokenize(buffer, tokens);  // Extract tokens
+
+                    if (tokens[0] && strcmp(tokens[0], questions[i].answer) == 0) {
                         printf("Correct!\n");
                         players[0].score += value;  // Adjust score for the correct player (Player 0 here)
                     } else {
